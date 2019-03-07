@@ -6,13 +6,15 @@
 ;Functions *********************************
 
 ;Sets starting speed of the pong
-Function StartSpeed(speed#, direction#)
+Function SetPongVector(speed#, direction#)
+	;simple vector transformation from magnitude-direction to components
 	x_speed = speed * Cos(direction)
 	y_speed = speed * Sin(direction)
 End Function
 
 ;updates the location of the pong based on speed
 Function UpdateLoc()
+	;location + speed
 	x_loc = x_loc + x_speed
 	y_loc = y_loc + y_speed
 	
@@ -32,7 +34,8 @@ Function UpdateLoc()
 				speed_vector# = GetAngle() - 8
 			End If
 			
-			StartSpeed(PONG_START_SPEED, speed_vector)
+			;changes slightly the pong direction
+			SetPongVector(PONG_START_SPEED, speed_vector)
 		End If
 	End If
 	
@@ -44,19 +47,27 @@ End Function
 
 ;updates the location of the bumpers
 Function UpdateBumper()
+	;uses the mouse location to set the bumper location
+	bumper_loc = MouseY() - BUMPER_HEIGHT/2
+	
+	;draws bumpers
 	Rect 0,bumper_loc,BUMPER_WIDTH,BUMPER_HEIGHT,1
 	Rect VP_WIDTH - BUMPER_WIDTH, bumper_loc,BUMPER_WIDTH,BUMPER_HEIGHT,1
-	
-	bumper_loc = MouseY() - BUMPER_HEIGHT/2
 End Function
 
 ;resets the game to an initial state
 Function ResetGame()
+	;prints "game over" in red
 	Color 255, 0, 0
 	Text VP_WIDTH/2, VP_HEIGHT/2, "Game Over", True, True
+	;makes sure the text is rendered before the game is paused
 	Flip
+	
+	;pause to let the user read the message
 	Delay 1000
-	StartSpeed(PONG_START_SPEED, Rnd(-45,45))
+	
+	;reset pong to initial state
+	SetPongVector(PONG_START_SPEED, Rnd(-45,45))
 	x_loc# = 320
 	y_loc# = 240
 	Color 255, 255, 255
@@ -64,33 +75,42 @@ End Function
 
 ;Calculates the direction of a vector starting at 0
 Function GetAngle#()
-	retval# = 0
+	;this function is also known as Atan2
 	If x_speed < 0 Then
+		 ;2nd and 3rd quadrants
 		Return (ATan(y_speed / x_speed) + 180)
 	Else
+		;1nd and 4th quadrants
+		
 		If x_speed = 0 Then
+			;special cases
 			If y_speed = 0 Then
+				;everything is just 0
 				Return 0
 			End If
 			
+			;vector is colinear to y
 			If y_speed > 0 Then
-				Return 270 ;180 * 1.5
+				;lower quadrant (+y)
+				Return 270
 			Else
-				Return 90 ;180 / 2
-			EndIf
-		Else
-			If retval < 0 Then
-				Return ATan(y_speed / x_speed) + 360
-			Else
-				Return ATan(y_speed / x_speed)
+				;upper quadrant (-y)
+				Return 90
 			End If
+		Else
+			;1nd and 4th quadrants
+			Return ATan(y_speed / x_speed)
+			;note that if the vector resides in the 4th quadrant, the
+			;arc tangent will return a negative number that, although
+			;is mathematically correct, is not intuitive if it were to
+			;be printed. To fix that a simple if should suffice.
 		End If
 	End If
 End Function
 
 ;Variables *********************************
 
-;viewport properties
+;CONSTANTS
 Const VP_WIDTH = 640
 Const VP_HEIGHT = 480
 Const BUMPER_HEIGHT# = 48
@@ -107,6 +127,7 @@ Global y_speed# = 0
 Global x_loc# = 320
 Global y_loc# = 240
 
+;bumper properties
 Global bumper_loc# = 240
 
 ;Startup ***********************************
@@ -121,9 +142,9 @@ myFont = LoadFont("Arial", 24)
 SetFont myFont
 
 ;start direction of ball
-;StartSpeed(PONG_START_SPEED, Rnd(-45,45))
-StartSpeed(PONG_START_SPEED, 22.5)
+SetPongVector(PONG_START_SPEED, Rnd(-45,45))
 
+;Hides pointer
 HidePointer
 
 ; Create new empty graphic to store our circle in
@@ -154,6 +175,8 @@ Wend
 
 ;Frees previously loaded font
 FreeFont myFont
+
+;Shows pointer again
 ShowPointer
 
 End
