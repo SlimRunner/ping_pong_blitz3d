@@ -1,0 +1,9 @@
+# Executables
+*.exe
+
+# Compiled Dynamic libraries
+*.dll
+
+# Backup BB Files
+*.bb_bak1
+*.bb_bak2
