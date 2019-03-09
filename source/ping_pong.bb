@@ -80,7 +80,7 @@ Function GetAngle#()
 		 ;2nd and 3rd quadrants
 		Return (ATan(y_speed / x_speed) + 180)
 	Else
-		;1nd and 4th quadrants
+		;1st and 4th quadrants
 		
 		If x_speed = 0 Then
 			;special cases
@@ -89,7 +89,7 @@ Function GetAngle#()
 				Return 0
 			End If
 			
-			;vector is colinear to y
+			;vector is collinear to y
 			If y_speed > 0 Then
 				;lower quadrant (+y)
 				Return 270
@@ -98,7 +98,7 @@ Function GetAngle#()
 				Return 90
 			End If
 		Else
-			;1nd and 4th quadrants
+			;1st and 4th quadrants
 			Return ATan(y_speed / x_speed)
 			;note that if the vector resides in the 4th quadrant, the
 			;arc tangent will return a negative number that, although
